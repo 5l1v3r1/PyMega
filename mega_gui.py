@@ -20,29 +20,32 @@ class MyFrame2(wx.Frame):
         # Menu Bar
         self.frame_2_menubar = wx.MenuBar()
         wxglade_tmp_menu = wx.Menu()
+        wxglade_tmp_menu.Append(2, "Quit", "", wx.ITEM_NORMAL)
         self.frame_2_menubar.Append(wxglade_tmp_menu, "File")
         wxglade_tmp_menu = wx.Menu()
-        wxglade_tmp_menu.Append(wx.NewId(), "Generate tree", "", wx.ITEM_NORMAL)
+        wxglade_tmp_menu.Append(4, "Generate tree", "", wx.ITEM_NORMAL)
         self.frame_2_menubar.Append(wxglade_tmp_menu, "Inne")
         self.SetMenuBar(self.frame_2_menubar)
         # Menu Bar end
         self.notebook_1 = wx.Notebook(self, -1, style=0)
         self.notebook_1_pane_1 = wx.Panel(self.notebook_1, -1)
         self.button_1 = wx.Button(self.notebook_1_pane_1, -1, "Upload File")
-        self.gauge_1 = wx.Gauge(self.notebook_1_pane_1, -1, 100)
+        self.gauge_1 = wx.Gauge(self.notebook_1_pane_1, -1, 1)
         self.button_3 = wx.Button(self.notebook_1_pane_1, -1, "Upload Directory")
         self.notebook_1_pane_2 = wx.Panel(self.notebook_1, -1)
-        self.tree_ctrl_1 = wx.TreeCtrl(self.notebook_1_pane_2, -1, style=wx.TR_HAS_BUTTONS | wx.TR_NO_LINES | wx.TR_DEFAULT_STYLE | wx.SUNKEN_BORDER)
-        self.button_4 = wx.Button(self.notebook_1_pane_2, -1, "button_4")
+        self.tree_ctrl_1 = wx.TreeCtrl(self.notebook_1_pane_2, -1, style=wx.TR_HAS_BUTTONS | wx.TR_DEFAULT_STYLE | wx.SUNKEN_BORDER)
+        self.button_6 = wx.Button(self.notebook_1_pane_2, -1, "Download")
+        self.label_3 = wx.StaticText(self.notebook_1_pane_2, -1, "label_3")
 
         self.__set_properties()
         self.__do_layout()
 
-        self.Bind(wx.EVT_MENU, self.generate_tree, id=-1)
+        self.Bind(wx.EVT_MENU, self.Click_Quit, id=2)
+        self.Bind(wx.EVT_MENU, self.generate_tree, id=4)
         self.Bind(wx.EVT_BUTTON, self.upload_file, self.button_1)
         self.Bind(wx.EVT_BUTTON, self.upload_directory, self.button_3)
         self.Bind(wx.EVT_TREE_SEL_CHANGED, self.zmiana, self.tree_ctrl_1)
-        self.Bind(wx.EVT_BUTTON, self.tree_download, self.button_4)
+        self.Bind(wx.EVT_BUTTON, self.directory_download, self.button_6)
         # end wxGlade
 
     def __set_properties(self):
@@ -51,21 +54,25 @@ class MyFrame2(wx.Frame):
         self.SetSize((447, 362))
         self.gauge_1.SetMinSize((200, 28))
         self.button_3.Enable(False)
-        self.button_4.SetMinSize((80, 27))
+        self.tree_ctrl_1.SetMinSize((325, 305))
+        self.button_6.SetMinSize((119, 27))
         # end wxGlade
 
     def __do_layout(self):
         # begin wxGlade: MyFrame2.__do_layout
         grid_sizer_2 = wx.GridSizer(1, 1, 0, 0)
-        sizer_1 = wx.BoxSizer(wx.HORIZONTAL)
+        grid_sizer_5 = wx.FlexGridSizer(1, 2, 0, 0)
+        sizer_4 = wx.BoxSizer(wx.VERTICAL)
         grid_sizer_3 = wx.GridSizer(3, 2, 0, 0)
         grid_sizer_3.Add(self.button_1, 0, 0, 0)
         grid_sizer_3.Add(self.gauge_1, 0, 0, 0)
         grid_sizer_3.Add(self.button_3, 0, 0, 0)
         self.notebook_1_pane_1.SetSizer(grid_sizer_3)
-        sizer_1.Add(self.tree_ctrl_1, 1, wx.EXPAND, 0)
-        sizer_1.Add(self.button_4, 0, wx.RIGHT, 60)
-        self.notebook_1_pane_2.SetSizer(sizer_1)
+        grid_sizer_5.Add(self.tree_ctrl_1, 1, wx.EXPAND, 0)
+        sizer_4.Add(self.button_6, 0, 0, 0)
+        sizer_4.Add(self.label_3, 0, 0, 0)
+        grid_sizer_5.Add(sizer_4, 1, wx.EXPAND, 0)
+        self.notebook_1_pane_2.SetSizer(grid_sizer_5)
         self.notebook_1.AddPage(self.notebook_1_pane_1, "Upload")
         self.notebook_1.AddPage(self.notebook_1_pane_2, "tab2")
         grid_sizer_2.Add(self.notebook_1, 1, wx.EXPAND, 0)
@@ -128,7 +135,7 @@ class MyFrame2(wx.Frame):
         print (moje)
         
         for i in range (0,table_id):
-            abc = self.tree_ctrl_1.AppendItem(root, table[i] + "_" + table_a[i])
+            abc = self.tree_ctrl_1.AppendItem(root, table[i])
             self.tree_ctrl_1.SetPyData(abc, table_a[i])
             self.subtree(table_a[i], files, abc, again="yes")
             
@@ -154,9 +161,30 @@ class MyFrame2(wx.Frame):
 
     def zmiana(self, event):  # wxGlade: MyFrame2.<event_handler>
         m = self.tree_ctrl_1.GetPyData(event.GetItem())
-        self.button_4.SetLabel(m)
+        self.label_3.SetLabel(m)
 
         event.Skip()
+
+    def folder_download_id(self, folderid, download_location):
+        mega.download_folder(foldernameorid=folderid, download_location=download_location, using="id", files=None)
+
+
+    def directory_download(self, event):  # wxGlade: MyFrame2.<event_handler>
+        dialog = wx.DirDialog(None, "Choose a directory:",style=wx.DD_DEFAULT_STYLE | wx.DD_NEW_DIR_BUTTON)
+        if dialog.ShowModal() == wx.ID_OK:
+            print dialog.GetPath()
+            path = dialog.GetPath()
+        print self.label_3.GetLabel()
+
+        t = threading.Thread(target=self.folder_download_id, args=(self.label_3.GetLabel(), path))
+        t.start()
+
+  #      mega.download_folder(foldernameorid=self.label_3.GetLabel(), download_location=path, using="id", files=None)
+        dialog.Destroy()
+        event.Skip()
+
+    def Click_Quit(self, event):  # wxGlade: MyFrame2.<event_handler>
+        self.Close(1)
 
 # end of class MyFrame2
 class MyFrame(wx.Frame):
@@ -164,15 +192,12 @@ class MyFrame(wx.Frame):
         # begin wxGlade: MyFrame.__init__
         kwds["style"] = wx.DEFAULT_FRAME_STYLE
         wx.Frame.__init__(self, *args, **kwds)
-        self.label_1 = wx.StaticText(self, -1, "Login", style=wx.ALIGN_CENTRE)
-        self.label_2 = wx.StaticText(self, -1, u"Hasło\n", style=wx.ALIGN_CENTRE)
-        self.panel_1 = wx.Panel(self, -1)
+        self.label_1 = wx.StaticText(self, -1, "Login")
         self.text_ctrl_1 = wx.TextCtrl(self, -1, "")
+        self.label_2 = wx.StaticText(self, -1, "Password")
         self.text_ctrl_2 = wx.TextCtrl(self, -1, "", style=wx.TE_PASSWORD)
-        self.panel_2 = wx.Panel(self, -1)
-        self.panel_3 = wx.Panel(self, -1)
-        self.panel_4 = wx.Panel(self, -1)
-        self.button_2 = wx.Button(self, -1, "Logowanie")
+        self.panel_1 = wx.Panel(self, -1)
+        self.button_2 = wx.Button(self, -1, "Login")
 
         self.__set_properties()
         self.__do_layout()
@@ -183,29 +208,27 @@ class MyFrame(wx.Frame):
     def __set_properties(self):
         # begin wxGlade: MyFrame.__set_properties
         self.SetTitle("Logowanie")
-        self.label_1.SetBackgroundColour(wx.Colour(242, 241, 240))
-        self.label_2.SetBackgroundColour(wx.Colour(242, 241, 240))
-        self.panel_1.SetBackgroundColour(wx.Colour(242, 241, 240))
-        self.panel_2.SetBackgroundColour(wx.Colour(242, 241, 240))
-        self.panel_3.SetBackgroundColour(wx.Colour(242, 241, 240))
-        self.panel_4.SetBackgroundColour(wx.Colour(242, 241, 240))
+        self.SetSize((401, 140))
+        self.text_ctrl_1.SetMinSize((200, 26))
+        self.text_ctrl_2.SetMinSize((200, 26))
         # end wxGlade
 
     def __do_layout(self):
         # begin wxGlade: MyFrame.__do_layout
-        grid_sizer_1 = wx.GridSizer(3, 3, 0, 0)
-        grid_sizer_1.Add(self.label_1, 0, 0, 0)
-        grid_sizer_1.Add(self.label_2, 0, 0, 0)
-        grid_sizer_1.Add(self.panel_1, 1, wx.EXPAND, 0)
-        grid_sizer_1.Add(self.text_ctrl_1, 0, 0, 0)
-        grid_sizer_1.Add(self.text_ctrl_2, 0, 0, 0)
-        grid_sizer_1.Add(self.panel_2, 1, wx.EXPAND, 0)
-        grid_sizer_1.Add(self.panel_3, 1, wx.EXPAND, 0)
-        grid_sizer_1.Add(self.panel_4, 1, wx.EXPAND, 0)
-        grid_sizer_1.Add(self.button_2, 0, 0, 0)
-        self.SetSizer(grid_sizer_1)
-        grid_sizer_1.Fit(self)
+        grid_sizer_4 = wx.FlexGridSizer(2, 2, 0, 0)
+        sizer_3 = wx.BoxSizer(wx.VERTICAL)
+        sizer_2 = wx.BoxSizer(wx.VERTICAL)
+        sizer_2.Add(self.label_1, 0, 0, 0)
+        sizer_2.Add(self.text_ctrl_1, 0, 0, 0)
+        grid_sizer_4.Add(sizer_2, 1, wx.EXPAND, 0)
+        sizer_3.Add(self.label_2, 0, 0, 0)
+        sizer_3.Add(self.text_ctrl_2, 0, 0, 0)
+        grid_sizer_4.Add(sizer_3, 1, wx.EXPAND, 0)
+        grid_sizer_4.Add(self.panel_1, 1, wx.EXPAND, 0)
+        grid_sizer_4.Add(self.button_2, 0, wx.ALIGN_RIGHT, 0)
+        self.SetSizer(grid_sizer_4)
         self.Layout()
+        self.SetSize((401, 140))
         # end wxGlade
 
     def Quit(self, event):  # wxGlade: MyFrame.<event_handler>
