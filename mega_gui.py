@@ -29,7 +29,7 @@ class MyFrame2(wx.Frame):
         self.notebook_1 = wx.Notebook(self, -1, style=0)
         self.notebook_1_pane_1 = wx.Panel(self.notebook_1, -1)
         self.button_1 = wx.Button(self.notebook_1_pane_1, -1, "Upload File")
-        self.gauge_1 = wx.Gauge(self.notebook_1_pane_1, -1, 1)
+        self.gauge_1 = wx.Gauge(self.notebook_1_pane_1, -1, 100)
         self.button_3 = wx.Button(self.notebook_1_pane_1, -1, "Upload Directory")
         self.notebook_1_pane_2 = wx.Panel(self.notebook_1, -1)
         self.tree_ctrl_1 = wx.TreeCtrl(self.notebook_1_pane_2, -1, style=wx.TR_HAS_BUTTONS | wx.TR_NO_LINES | wx.TR_DEFAULT_STYLE | wx.SUNKEN_BORDER)
