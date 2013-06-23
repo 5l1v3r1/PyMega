@@ -6,27 +6,43 @@ import threading
 import wx
 from mega import Mega
 import os
-from decimal import Decimal
+
 # begin wxGlade: extracode
 # end wxGlade
 
+# end of class MyMenuBar1
 class MyFrame2(wx.Frame):
     def __init__(self, *args, **kwds):
         # begin wxGlade: MyFrame2.__init__
         kwds["style"] = wx.DEFAULT_FRAME_STYLE
         wx.Frame.__init__(self, *args, **kwds)
+        
+        # Menu Bar
+        self.frame_2_menubar = wx.MenuBar()
+        wxglade_tmp_menu = wx.Menu()
+        self.frame_2_menubar.Append(wxglade_tmp_menu, "File")
+        wxglade_tmp_menu = wx.Menu()
+        wxglade_tmp_menu.Append(wx.NewId(), "Generate tree", "", wx.ITEM_NORMAL)
+        self.frame_2_menubar.Append(wxglade_tmp_menu, "Inne")
+        self.SetMenuBar(self.frame_2_menubar)
+        # Menu Bar end
         self.notebook_1 = wx.Notebook(self, -1, style=0)
         self.notebook_1_pane_1 = wx.Panel(self.notebook_1, -1)
         self.button_1 = wx.Button(self.notebook_1_pane_1, -1, "Upload File")
-        self.gauge_1 = wx.Gauge(self.notebook_1_pane_1, -1, 100)
+        self.gauge_1 = wx.Gauge(self.notebook_1_pane_1, -1, 1)
         self.button_3 = wx.Button(self.notebook_1_pane_1, -1, "Upload Directory")
         self.notebook_1_pane_2 = wx.Panel(self.notebook_1, -1)
+        self.tree_ctrl_1 = wx.TreeCtrl(self.notebook_1_pane_2, -1, style=wx.TR_HAS_BUTTONS | wx.TR_NO_LINES | wx.TR_DEFAULT_STYLE | wx.SUNKEN_BORDER)
+        self.button_4 = wx.Button(self.notebook_1_pane_2, -1, "button_4")
 
         self.__set_properties()
         self.__do_layout()
 
+        self.Bind(wx.EVT_MENU, self.generate_tree, id=-1)
         self.Bind(wx.EVT_BUTTON, self.upload_file, self.button_1)
         self.Bind(wx.EVT_BUTTON, self.upload_directory, self.button_3)
+        self.Bind(wx.EVT_TREE_SEL_CHANGED, self.zmiana, self.tree_ctrl_1)
+        self.Bind(wx.EVT_BUTTON, self.tree_download, self.button_4)
         # end wxGlade
 
     def __set_properties(self):
@@ -35,17 +51,22 @@ class MyFrame2(wx.Frame):
         self.SetSize((447, 362))
         self.gauge_1.SetMinSize((200, 28))
         self.button_3.Enable(False)
+        self.button_4.SetMinSize((80, 27))
         # end wxGlade
 
     def __do_layout(self):
         # begin wxGlade: MyFrame2.__do_layout
         grid_sizer_2 = wx.GridSizer(1, 1, 0, 0)
+        sizer_1 = wx.BoxSizer(wx.HORIZONTAL)
         grid_sizer_3 = wx.GridSizer(3, 2, 0, 0)
         grid_sizer_3.Add(self.button_1, 0, 0, 0)
         grid_sizer_3.Add(self.gauge_1, 0, 0, 0)
         grid_sizer_3.Add(self.button_3, 0, 0, 0)
         self.notebook_1_pane_1.SetSizer(grid_sizer_3)
-        self.notebook_1.AddPage(self.notebook_1_pane_1, "tab1")
+        sizer_1.Add(self.tree_ctrl_1, 1, wx.EXPAND, 0)
+        sizer_1.Add(self.button_4, 0, wx.RIGHT, 60)
+        self.notebook_1_pane_2.SetSizer(sizer_1)
+        self.notebook_1.AddPage(self.notebook_1_pane_1, "Upload")
         self.notebook_1.AddPage(self.notebook_1_pane_2, "tab2")
         grid_sizer_2.Add(self.notebook_1, 1, wx.EXPAND, 0)
         self.SetSizer(grid_sizer_2)
@@ -78,7 +99,64 @@ class MyFrame2(wx.Frame):
         print "Event handler `upload_directory' not implemented"
         event.Skip()
 
+    def subtree(self, folder_id, files, root, again=None):
+        if again:
+            print("dasd")
+        else:
+            list_id=0
+            nono=[]
 
+        table = []
+        table_a = []
+        table_id=0
+        for folder in files.items():
+            if folder[1]['h'] == folder_id:
+                folder_name = folder[1]['a']['n']
+        print folder_name
+
+        for folder2 in files.items():
+            if folder2[1]['p'] == folder_id and folder2[1]['t'] == 1:
+                table.append(folder2[1]['a']['n'])
+                table_id = table_id + 1
+        table.sort()
+
+        for a in range (0,table_id):
+            for folder3 in files.items():
+                if folder3[1]['p'] == folder_id and folder3[1]['t'] == 1 and folder3[1]['a']['n'] == table[a]:
+                    table_a.append(folder3[1]['h'])
+        moje = folder_id + '_tree'
+        print (moje)
+        
+        for i in range (0,table_id):
+            abc = self.tree_ctrl_1.AppendItem(root, table[i] + "_" + table_a[i])
+            self.tree_ctrl_1.SetPyData(abc, table_a[i])
+            self.subtree(table_a[i], files, abc, again="yes")
+            
+
+    def generate_tree(self, event):  # wxGlade: MyFrame2.<event_handler>
+        print "Event handler `generate_tree' not implemented"
+        files = mega.get_files()
+        for folder in files.items():
+            if folder[1]['t'] == 2:
+                a = folder[1]
+        print (a['h'])
+        moje = a['h'] + '_tree'
+        print (moje)
+        root = self.tree_ctrl_1.AddRoot(a['a']['n'])
+        self.subtree(a['h'], files, root)
+
+
+    def tree_download(self, event):  # wxGlade: MyFrame2.<event_handler>
+        print "Event handler `tree_download' not implemented"
+        item = self.tree_ctrl_1.GetSelection()
+        print (self.tree_ctrl_1.GetItemText(item))
+        event.Skip()
+
+    def zmiana(self, event):  # wxGlade: MyFrame2.<event_handler>
+        m = self.tree_ctrl_1.GetPyData(event.GetItem())
+        self.button_4.SetLabel(m)
+
+        event.Skip()
 
 # end of class MyFrame2
 class MyFrame(wx.Frame):
