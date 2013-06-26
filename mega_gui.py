@@ -30,10 +30,10 @@ class MyFrame2(wx.Frame):
         self.notebook_1 = wx.Notebook(self, -1, style=0)
         self.notebook_1_pane_1 = wx.Panel(self.notebook_1, -1)
         self.button_1 = wx.Button(self.notebook_1_pane_1, -1, "Upload File")
-        self.gauge_1 = wx.Gauge(self.notebook_1_pane_1, -1, 1)
+        self.gauge_1 = wx.Gauge(self.notebook_1_pane_1, -1, 100)
         self.button_3 = wx.Button(self.notebook_1_pane_1, -1, "Upload Directory")
         self.notebook_1_pane_2 = wx.Panel(self.notebook_1, -1)
-        self.tree_ctrl_1 = wx.TreeCtrl(self.notebook_1_pane_2, -1, style=wx.TR_HAS_BUTTONS | wx.TR_DEFAULT_STYLE | wx.SUNKEN_BORDER)
+        self.tree_ctrl_1 = wx.TreeCtrl(self.notebook_1_pane_2, -1, style=wx.TR_HAS_BUTTONS | wx.TR_NO_LINES | wx.TR_DEFAULT_STYLE | wx.SUNKEN_BORDER)
         self.button_6 = wx.Button(self.notebook_1_pane_2, -1, "Download")
         self.label_3 = wx.StaticText(self.notebook_1_pane_2, -1, "label_3")
 
@@ -190,7 +190,7 @@ class MyFrame2(wx.Frame):
 class MyFrame(wx.Frame):
     def __init__(self, *args, **kwds):
         # begin wxGlade: MyFrame.__init__
-        kwds["style"] = wx.DEFAULT_FRAME_STYLE
+        kwds["style"] = wx.CAPTION | wx.CLOSE_BOX | wx.MINIMIZE_BOX | wx.MAXIMIZE_BOX | wx.SYSTEM_MENU | wx.RESIZE_BORDER | wx.TAB_TRAVERSAL | wx.CLIP_CHILDREN
         wx.Frame.__init__(self, *args, **kwds)
         self.label_1 = wx.StaticText(self, -1, "Login")
         self.text_ctrl_1 = wx.TextCtrl(self, -1, "")
