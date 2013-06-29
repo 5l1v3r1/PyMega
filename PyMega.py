@@ -7,6 +7,8 @@ import threading
 import wx
 from mega import Mega
 import os
+import functools
+import locale
 
 # begin wxGlade: extracode
 # end wxGlade
@@ -117,33 +119,19 @@ class MyFrame2(wx.Frame):
             list_id=0
             nono=[]
 
+        table_id = 0
         image_list = wx.ImageList(16, 16)
         folder_icon = image_list.Add(wx.Image("images/Folder-icon.png", wx.BITMAP_TYPE_PNG).Scale(16,16).ConvertToBitmap())
         self.tree_ctrl_1.AssignImageList(image_list)
         table = []
-        table_a = []
-        table_file = []
-        table_id = 0
         for folder in files.items():
-            if folder[1]['h'] == folder_id:
-                folder_name = folder[1]['a']['n']
-        print folder_name
-
-        for folder2 in files.items():
-            if folder2[1]['p'] == folder_id and folder2[1]['t'] == 1:
-                table.append(folder2[1]['a']['n'])
+            if folder[1]['p'] == folder_id and folder[1]['t'] == 1:
+                table.append(folder[1]['a']['n'] + folder[1]['h'])
                 table_id = table_id + 1
 
-        table.sort()
+        table.sort(key = functools.cmp_to_key(locale.strcoll))
 
         print table
-
-        for a in range (0,table_id):
-            for folder3 in files.items():
-                if folder3[1]['p'] == folder_id and folder3[1]['t'] == 1 and folder3[1]['a']['n'] == table[a]:
-                    table_a.append(folder3[1]['h'])
-        moje = folder_id + '_tree'
-        print (moje)
 
         if table_id == 0:
             for folder4 in files.items():
@@ -153,19 +141,32 @@ class MyFrame2(wx.Frame):
                     print folder4[1]['a']['n']
 
         for c in range (0,table_id):
-            abc = self.tree_ctrl_1.AppendItem(root, table[c])
-            self.tree_ctrl_1.SetPyData(abc, table_a[c] + " folder")
+
+            folder_id_2 = table[c][-8:]
+            folder_name_2 = table[c][:-8]
+
+            print folder_name_2
+            print folder_id_2
+
+            abc = self.tree_ctrl_1.AppendItem(root, folder_name_2)
+            self.tree_ctrl_1.SetPyData(abc, folder_id_2 + " folder")
             self.tree_ctrl_1.SetItemImage(abc, folder_icon, wx.TreeItemIcon_Normal)
-            self.subtree(table_a[c], files, abc, again="yes")
+            self.subtree(folder_id_2, files, abc, again="yes")
             if c == (table_id - 1):
+                table_file = []
+                table_file_id = 0
                 for folder4 in files.items():
                     if folder4[1]['t'] == 0 and folder4[1]['p'] == folder_id:
+                        table_file.append(folder4[1]['a']['n'] + folder4[1]['h'])
+                        table_file_id = table_file_id + 1
 
-                        xyz = self.tree_ctrl_1.AppendItem(root, folder4[1]['a']['n'])
-                        self.tree_ctrl_1.SetPyData(xyz, folder4[1]['h'] + " file")
-                        print folder4[1]['a']['n']
+                for y in sorted(table_file, key=functools.cmp_to_key(locale.strcoll)):
+                    print y
+#                    file_id_2 = x[-8:]
+#                    file_name_2 = x[:-8]
+                    xyz = self.tree_ctrl_1.AppendItem(root, y[:-8])
+                    self.tree_ctrl_1.SetPyData(xyz, y[-8:] + " file")
 
-            
 
     def generate_tree(self, event):  # wxGlade: MyFrame2.<event_handler>
         print "Event handler `generate_tree' not implemented"
