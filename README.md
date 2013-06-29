@@ -1,4 +1,4 @@
-mega-gui
+PyMega
 ========
 
 GUI for mega.co.nz cloud
