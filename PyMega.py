@@ -9,11 +9,67 @@ from mega import Mega
 import os
 import functools
 import locale
-
+import sys
+import gettext
+import ConfigParser
 # begin wxGlade: extracode
 # end wxGlade
 
 # end of class MyMenuBar1
+
+class MyFrame3(wx.Frame):
+    def __init__(self, *args, **kwds):
+        # begin wxGlade: MyFrame3.__init__
+        kwds["style"] = wx.CAPTION | wx.CLOSE_BOX | wx.MINIMIZE_BOX | wx.MAXIMIZE_BOX | wx.STAY_ON_TOP | wx.SYSTEM_MENU | wx.RESIZE_BORDER | wx.CLIP_CHILDREN
+        wx.Frame.__init__(self, *args, **kwds)
+        self.label_4 = wx.StaticText(self, -1, "Language\n")
+        self.combo_box_1 = wx.ComboBox(self, -1, choices=["English", "Polski"], style=wx.CB_DROPDOWN)
+        self.button_4 = wx.Button(self, -1, "Save")
+
+        self.__set_properties()
+        self.__do_layout()
+
+        self.Bind(wx.EVT_BUTTON, self.settings_save, self.button_4)
+        # end wxGlade
+
+    def __set_properties(self):
+        # begin wxGlade: MyFrame3.__set_properties
+        self.SetTitle("Settings")
+        self.label_4.SetBackgroundColour(wx.Colour(234, 234, 234))
+        self.combo_box_1.SetSelection(-1)
+        # end wxGlade
+
+    def __do_layout(self):
+        # begin wxGlade: MyFrame3.__do_layout
+        sizer_6 = wx.BoxSizer(wx.VERTICAL)
+        sizer_7 = wx.BoxSizer(wx.VERTICAL)
+        sizer_8 = wx.BoxSizer(wx.HORIZONTAL)
+        sizer_8.Add(self.label_4, 0, wx.RIGHT, 20)
+        sizer_8.Add(self.combo_box_1, 0, 0, 0)
+        sizer_7.Add(sizer_8, 1, wx.EXPAND, 0)
+        sizer_7.Add(self.button_4, 0, 0, 0)
+        sizer_6.Add(sizer_7, 1, wx.EXPAND, 0)
+        self.SetSizer(sizer_6)
+        sizer_6.Fit(self)
+        self.Layout()
+        self.Centre()
+        # end wxGlade
+
+    def settings_save(self, event):  # wxGlade: MyFrame3.<event_handler>
+        language = self.combo_box_1.GetValue()
+        if language == "English":
+            config.set('PyMega', 'lang', 'en')
+        elif language == "Polski":   
+            config.set('PyMega', 'lang', 'pl')
+
+        with open('example.cfg', 'wb') as configfile:
+            config.write(configfile)
+
+#        gettext.translation("ivcm", "./locale", languages=[config.get('PyMega', 'lang')]).install()
+        self.Close(1)
+        event.Skip()
+
+# end of class MyFrame3
 class MyFrame2(wx.Frame):
     def __init__(self, *args, **kwds):
         # begin wxGlade: MyFrame2.__init__
@@ -23,11 +79,10 @@ class MyFrame2(wx.Frame):
         # Menu Bar
         self.frame_2_menubar = wx.MenuBar()
         wxglade_tmp_menu = wx.Menu()
+        wxglade_tmp_menu.Append(3, "Settings", "", wx.ITEM_NORMAL)
+        wxglade_tmp_menu.Append(4, "Generate tree", "", wx.ITEM_NORMAL)
         wxglade_tmp_menu.Append(2, "Quit", "", wx.ITEM_NORMAL)
         self.frame_2_menubar.Append(wxglade_tmp_menu, "File")
-        wxglade_tmp_menu = wx.Menu()
-        wxglade_tmp_menu.Append(4, "Generate tree", "", wx.ITEM_NORMAL)
-        self.frame_2_menubar.Append(wxglade_tmp_menu, "Inne")
         self.SetMenuBar(self.frame_2_menubar)
         # Menu Bar end
         self.notebook_1 = wx.Notebook(self, -1, style=0)
@@ -39,12 +94,14 @@ class MyFrame2(wx.Frame):
         self.tree_ctrl_1 = wx.TreeCtrl(self.notebook_1_pane_2, -1, style=wx.TR_HAS_BUTTONS | wx.TR_NO_LINES | wx.TR_DEFAULT_STYLE | wx.SUNKEN_BORDER)
         self.button_6 = wx.Button(self.notebook_1_pane_2, -1, "Download")
         self.label_3 = wx.StaticText(self.notebook_1_pane_2, -1, "label_3")
+        self.gauge_3 = wx.Gauge(self.notebook_1_pane_2, -1, 100, style=wx.GA_HORIZONTAL | wx.GA_SMOOTH)
 
         self.__set_properties()
         self.__do_layout()
 
-        self.Bind(wx.EVT_MENU, self.Click_Quit, id=2)
+        self.Bind(wx.EVT_MENU, self.settings_show, id=3)
         self.Bind(wx.EVT_MENU, self.generate_tree, id=4)
+        self.Bind(wx.EVT_MENU, self.Click_Quit, id=2)
         self.Bind(wx.EVT_BUTTON, self.upload_file, self.button_1)
         self.Bind(wx.EVT_BUTTON, self.upload_directory, self.button_3)
         self.Bind(wx.EVT_TREE_SEL_CHANGED, self.zmiana, self.tree_ctrl_1)
@@ -56,12 +113,15 @@ class MyFrame2(wx.Frame):
 
     def __set_properties(self):
         # begin wxGlade: MyFrame2.__set_properties
-        self.SetTitle(u"Główne menu")
+        self.SetTitle("Main menu")
         self.SetSize((447, 362))
         self.gauge_1.SetMinSize((200, 28))
         self.button_3.Enable(False)
+        self.notebook_1_pane_1.SetBackgroundColour(wx.Colour(234, 234, 234))
         self.tree_ctrl_1.SetMinSize((325, 305))
         self.button_6.SetMinSize((119, 27))
+        self.label_3.Hide()
+        self.gauge_3.SetMinSize((118, 28))
         # end wxGlade
 
     def __do_layout(self):
@@ -77,10 +137,11 @@ class MyFrame2(wx.Frame):
         grid_sizer_5.Add(self.tree_ctrl_1, 1, wx.EXPAND, 0)
         sizer_4.Add(self.button_6, 0, 0, 0)
         sizer_4.Add(self.label_3, 0, 0, 0)
+        sizer_4.Add(self.gauge_3, 0, 0, 0)
         grid_sizer_5.Add(sizer_4, 1, wx.EXPAND, 0)
         self.notebook_1_pane_2.SetSizer(grid_sizer_5)
         self.notebook_1.AddPage(self.notebook_1_pane_1, "Upload")
-        self.notebook_1.AddPage(self.notebook_1_pane_2, "tab2")
+        self.notebook_1.AddPage(self.notebook_1_pane_2, "Tree view")
         grid_sizer_2.Add(self.notebook_1, 1, wx.EXPAND, 0)
         self.SetSizer(grid_sizer_2)
         self.Layout()
@@ -121,7 +182,7 @@ class MyFrame2(wx.Frame):
 
         table_id = 0
         image_list = wx.ImageList(16, 16)
-        folder_icon = image_list.Add(wx.Image("images/Folder-icon.png", wx.BITMAP_TYPE_PNG).Scale(16,16).ConvertToBitmap())
+        folder_icon = image_list.Add(wx.Image(resource_path("images/Folder-icon.png"), wx.BITMAP_TYPE_PNG).Scale(16,16).ConvertToBitmap())
         self.tree_ctrl_1.AssignImageList(image_list)
         table = []
         for folder in files.items():
@@ -197,18 +258,23 @@ class MyFrame2(wx.Frame):
         mega.download_folder(foldernameorid=folderid, download_location=download_location, using="id", files=None)
         self.button_6.Enable(True)
 
+    def callback_tree_file(self, current, total):
+        m = 100 * current / total
+        print(m)
+        self.gauge_3.SetValue(m)
+        wx.Yield()
+
     def file_download_id(self, fileid, download_location):
         files = mega.get_files()
         for file in files.items():
             if file[1]['a'] and file[1]['h'] == fileid:
-                mega.download(file, download_location)
+                mega.download(file, download_location, callback=self.callback_tree_file)
         self.button_6.Enable(True)
 
     def Click_Quit(self, event):  # wxGlade: MyFrame2.<event_handler>
         self.Close(1)
 
     def download_tree(self, event):  # wxGlade: MyFrame2.<event_handler>
-        
         dialog = wx.DirDialog(None, "Choose a directory:",style=wx.DD_DEFAULT_STYLE | wx.DD_NEW_DIR_BUTTON)
         if dialog.ShowModal() == wx.ID_OK:
             self.button_6.Enable(False)
@@ -229,13 +295,18 @@ class MyFrame2(wx.Frame):
         event.Skip()
 
 
+    def settings_show(self, event):  # wxGlade: MyFrame2.<event_handler>
+        frame_3 = MyFrame3(None, -1, "")
+        frame_3.Show()
+        event.Skip()
+
 # end of class MyFrame2
 class MyFrame(wx.Frame):
     def __init__(self, *args, **kwds):
         # begin wxGlade: MyFrame.__init__
         kwds["style"] = wx.CAPTION | wx.CLOSE_BOX | wx.MINIMIZE_BOX | wx.MAXIMIZE_BOX | wx.SYSTEM_MENU | wx.RESIZE_BORDER | wx.TAB_TRAVERSAL | wx.CLIP_CHILDREN
         wx.Frame.__init__(self, *args, **kwds)
-        self.label_1 = wx.StaticText(self, -1, "Login")
+        self.label_1 = wx.StaticText(self, -1, "E-mail")
         self.text_ctrl_1 = wx.TextCtrl(self, -1, "")
         self.label_2 = wx.StaticText(self, -1, "Password")
         self.text_ctrl_2 = wx.TextCtrl(self, -1, "", style=wx.TE_PASSWORD)
@@ -250,10 +321,14 @@ class MyFrame(wx.Frame):
 
     def __set_properties(self):
         # begin wxGlade: MyFrame.__set_properties
-        self.SetTitle("Logowanie")
+        self.SetTitle("Login")
         self.SetSize((401, 140))
+        self.SetBackgroundColour(wx.Colour(234, 234, 234))
+        self.label_1.SetBackgroundColour(wx.Colour(234, 234, 234))
         self.text_ctrl_1.SetMinSize((200, 26))
+        self.label_2.SetBackgroundColour(wx.Colour(234, 234, 234))
         self.text_ctrl_2.SetMinSize((200, 26))
+        self.panel_1.SetBackgroundColour(wx.Colour(234, 234, 234))
         # end wxGlade
 
     def __do_layout(self):
@@ -290,8 +365,22 @@ class MyFrame(wx.Frame):
             frame_1.Close(1)
             frame_2.Show()
 
+
+def resource_path(relative):
+    return os.path.join(getattr(sys, '_MEIPASS', os.path.abspath(".")),
+                        relative)
+
+
 # end of class MyFrame
 if __name__ == "__main__":
+
+
+#    gettext.install('ivcm', './locale', unicode=False)
+    config = ConfigParser.RawConfigParser()
+    config.read('example.cfg')
+
+#    gettext.translation("ivcm", "./locale", languages=[config.get('PyMega', 'lang')]).install()
+
     mega = Mega({'verbose': True})
     app = wx.PySimpleApp(0)
     wx.InitAllImageHandlers()
