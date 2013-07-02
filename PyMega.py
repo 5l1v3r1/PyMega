@@ -17,6 +17,111 @@ import ConfigParser
 
 # end of class MyMenuBar1
 
+
+class MyFrame4(wx.Frame):
+    def __init__(self, *args, **kwds):
+        # begin wxGlade: MyFrame4.__init__
+        kwds["style"] = wx.DEFAULT_FRAME_STYLE
+        wx.Frame.__init__(self, *args, **kwds)
+        self.tree_ctrl_2 = wx.TreeCtrl(self, -1, style=wx.TR_HAS_BUTTONS | wx.TR_NO_LINES | wx.TR_DEFAULT_STYLE | wx.SUNKEN_BORDER)
+
+        self.__set_properties()
+        self.__do_layout()
+
+        self.Bind(wx.EVT_TREE_KEY_DOWN, self.choose, self.tree_ctrl_2)
+        # end wxGlade
+
+    def __set_properties(self):
+        # begin wxGlade: MyFrame4.__set_properties
+        self.SetTitle("Choose upload location")
+        self.SetSize((300, 200))
+        # end wxGlade
+
+    def __do_layout(self):
+        # begin wxGlade: MyFrame4.__do_layout
+        sizer_1 = wx.BoxSizer(wx.VERTICAL)
+        sizer_1.Add(self.tree_ctrl_2, 1, wx.EXPAND, 0)
+        self.SetSizer(sizer_1)
+        self.Layout()
+        self.SetSize((300, 200))
+        # end wxGlade
+
+
+    def subtree(self, folder_id, files, root, again=None):
+        if again:
+            print("dasd")
+        else:
+            list_id=0
+            nono=[]
+            print path
+
+        table_id = 0
+        image_list = wx.ImageList(16, 16)
+        folder_icon = image_list.Add(wx.Image(resource_path("images/Folder-icon.png"), wx.BITMAP_TYPE_PNG).Scale(16,16).ConvertToBitmap())
+        self.tree_ctrl_2.AssignImageList(image_list)
+        table = []
+        for folder in files.items():
+            if folder[1]['p'] == folder_id and folder[1]['t'] == 1:
+                table.append(folder[1]['a']['n'] + folder[1]['h'])
+                table_id = table_id + 1
+
+        table.sort(key = functools.cmp_to_key(locale.strcoll))
+
+        print table
+
+        if table_id == 0:
+            for folder4 in files.items():
+                if folder4[1]['t'] == 0 and folder4[1]['p'] == folder_id:
+                    xyz = self.tree_ctrl_2.AppendItem(root, folder4[1]['a']['n'])
+                    self.tree_ctrl_2.SetPyData(xyz, folder4[1]['h'])
+                    print folder4[1]['a']['n']
+
+        for c in range (0,table_id):
+
+            folder_id_2 = table[c][-8:]
+            folder_name_2 = table[c][:-8]
+
+            print folder_name_2
+            print folder_id_2
+
+            abc = self.tree_ctrl_2.AppendItem(root, folder_name_2)
+            self.tree_ctrl_2.SetPyData(abc, folder_id_2 + " folder")
+            self.tree_ctrl_2.SetItemImage(abc, folder_icon, wx.TreeItemIcon_Normal)
+            self.subtree(folder_id_2, files, abc, again="yes")
+
+
+    def choose(self, event):  # wxGlade: MyFrame4.<event_handler>
+        print "Event handler `choose' not implemented"
+        keycode = event.GetKeyCode()
+        print keycode
+        if keycode == 13:
+            m = self.tree_ctrl_2.GetPyData(self.tree_ctrl_2.GetSelection()) 
+            m = m[:-7]
+            print m
+            t = threading.Thread(target=self.uploading, args=(path,m, ))
+            t.start()
+        event.Skip()
+
+    def uploading(self, path, destination_id):
+        self.Hide()
+        files = mega.get_files()
+        for file in files.items():
+            if file[1]['a'] and file[1]['h'] == destination_id:
+                folder = file
+
+        mega.upload(path, dest=destination_id, callback=self.myupdater)
+        self.Close(1)
+        
+
+    def myupdater(self, current, total):
+        m = 100 * current / total
+        print(m)
+        frame_2.gauge_1.SetValue(m)
+        wx.Yield()
+
+
+
+# end of class MyFrame4
 class MyFrame3(wx.Frame):
     def __init__(self, *args, **kwds):
         # begin wxGlade: MyFrame3.__init__
@@ -163,11 +268,27 @@ class MyFrame2(wx.Frame):
     def upload_file(self, event):  # wxGlade: MyFrame2.<event_handler>
         dlg = wx.FileDialog(self, "Choose a file", os.getcwd(), "", "*.*", wx.OPEN)
         if dlg.ShowModal() == wx.ID_OK:
+            global path
             path = dlg.GetPath()
+            global mypath
             mypath = os.path.basename(path)
-        self.button_1.Enable(False)
-        t = threading.Thread(target=self.uploading, args=(path,))
-        t.start()
+            frame_4 = MyFrame4(None, -1, "")
+            files = mega.get_files()
+            for folder in files.items():
+                if folder[1]['t'] == 2:
+                    a = folder[1]
+                    folder_id = folder[1]['h']
+            print (a['h'])
+            moje = a['h'] + '_tree'
+            print (moje)
+            root = frame_4.tree_ctrl_2.AddRoot(a['a']['n'])
+            frame_4.tree_ctrl_2.SetPyData(root, folder_id + " folder")
+            frame_4.subtree(a['h'], files, root)
+            frame_4.Show()
+            print "Koniec"
+    #    self.button_1.Enable(False)
+    #    t = threading.Thread(target=self.uploading, args=(path,))
+    #    t.start()
 
     def upload_directory(self, event):  # wxGlade: MyFrame2.<event_handler>
         print "Event handler `upload_directory' not implemented"
@@ -235,10 +356,12 @@ class MyFrame2(wx.Frame):
         for folder in files.items():
             if folder[1]['t'] == 2:
                 a = folder[1]
+                folder_id = folder[1]['h']
         print (a['h'])
         moje = a['h'] + '_tree'
         print (moje)
         root = self.tree_ctrl_1.AddRoot(a['a']['n'])
+        self.tree_ctrl_1.SetPyData(root, folder_id + " folder")
         self.subtree(a['h'], files, root)
 
 
